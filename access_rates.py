@@ -66,6 +66,12 @@ def calc_weights(pop, urban, ntl, targets, more, access):
     """
 
     # The calculated weights for each segment will go here
+
+    if access["urban"] > 0.9:
+        weights = np.ones_like(pop) * access["rural"]
+        weights[urban >= 2] = access["urban"]
+        return weights
+
     weights = np.zeros_like(pop)
 
     # Investigate each combination of urban/rural and four quartiles
@@ -96,9 +102,8 @@ def calc_weights(pop, urban, ntl, targets, more, access):
                 # Get the average brightness per person of the top x% for this quartile
                 # Where x is the rural/urban access rate
                 ntl_per_pop = ntl / pop_temp
-                ntl_cut = np.nanquantile(
-                    ntl_per_pop, min(max(1 - access_level - more[loc][q], 0), 1)
-                )
+                ntl_quant = min(max(1 - access_level - more[loc][q], 0), 1)
+                ntl_cut = np.nanquantile(ntl_per_pop, ntl_quant)
 
                 # Create a weights array and assign values accoring to the formula below
                 w = np.zeros_like(pop)
@@ -123,6 +128,7 @@ def calc_pop_elec(pop, urban, ntl, targets, access):
     }
 
     runs = 0
+    prev_access_model_total = None
     while True:
         runs += 1
         weights = calc_weights(pop, urban, ntl, targets, more, access)
@@ -132,14 +138,16 @@ def calc_pop_elec(pop, urban, ntl, targets, access):
         pop_elec[np.isnan(pop_elec)] = 0
 
         access_model_total = np.nansum(pop_elec) / np.nansum(pop)
-        print(access["total"], access_model_total)
+        print(f'{access["total"]:.4f}', f'{access_model_total:.4f}')
 
         if abs(access["total"] - access_model_total) < 0.02:
             print("Reached accuracy")
             break
         elif runs >= 20:
-            print("LIMIT RUNS")
+            print("STOP - reached limit")
             break
+        elif access_model_total == prev_access_model_total:
+            print("STOP - no change")
         else:
             if access_model_total < access["total"]:
                 direc = 1
@@ -173,6 +181,15 @@ def regularise(country, aoi, pop_in, urban_in, ntl_in, targets_in):
     ntl[ntl < 0] = 0
     targets[targets < 0] = 0
 
+    if pop.ndim > 2:
+        pop = pop[0]
+    if urban.ndim > 2:
+        urban = urban[0]
+    if ntl.ndim > 2:
+        ntl = ntl[0]
+    if targets.ndim > 2:
+        targets = targets[0]
+
     urban = make_same_as(urban, urban_aff, urban_crs, pop, affine, crs)
     ntl = make_same_as(ntl, ntl_aff, ntl_crs, pop, affine, crs)
     targets = make_same_as(targets, targets_aff, targets_crs, pop, affine, crs)
@@ -203,4 +220,4 @@ def estimate(pop, urban, ntl, targets, access):
     print(f"Urban:\t{access['urban']:.2f}\t{access_model_urban:.2f}")
     print(f"Rural:\t{access['rural']:.2f}\t{access_model_rural:.2f}")
 
-    return pop_elec
+    return pop_elec, access_model_total
