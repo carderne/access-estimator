@@ -14,16 +14,16 @@ def get_length(pop):
     if pop < 2:
         return 0
 
-    connection_cost_per_hh = 500  # USD/hh
-    mv_line_cost = 45e3  # USD/km
-    lv_line_cost = 15e3  # USD/km
+    # connection_cost_per_hh = 500  # USD/hh
+    # mv_line_cost = 45e3  # USD/km
+    # lv_line_cost = 15e3  # USD/km
 
     num_people_per_hh = 4
     grid_cell_area = 0.45 * 0.45  # in km2, normally 1km2
 
     lv_line_max_length = 1  # km
     lv_line_capacity = 10  # kW/line
-    mv_line_max_length = 50  # km
+    # mv_line_max_length = 50  # km
     mv_line_capacity = 50  # kW/line
 
     peak_load = pop * 1  # kW
