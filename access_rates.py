@@ -138,7 +138,7 @@ def calc_pop_elec(pop, urban, ntl, targets, access):
         pop_elec[np.isnan(pop_elec)] = 0
 
         access_model_total = np.nansum(pop_elec) / np.nansum(pop)
-        print(f'{access["total"]:.4f}', f'{access_model_total:.4f}')
+        print(f'{access["total"]:.4f}', f"{access_model_total:.4f}")
 
         if abs(access["total"] - access_model_total) < 0.02:
             print("Reached accuracy")

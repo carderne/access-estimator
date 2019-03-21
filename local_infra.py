@@ -36,8 +36,8 @@ def apply_lv_length(pop_elec):
 
     pop_elec = pop_elec.astype(np.int)
     f = np.vectorize(lv_length, otypes=[np.float32])
-    costs = f(pop_elec)
-    total_cost = np.sum(costs)
-    print(f"Total cost: USD {total_cost:,}")
+    lengths = f(pop_elec)
+    total_length = np.sum(lengths)
+    print(f"Total length: {total_length:,} km")
 
-    return costs.astype(np.float32)
+    return lengths.astype(np.float32)
