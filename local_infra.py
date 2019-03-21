@@ -6,61 +6,38 @@ from math import sqrt
 import numpy as np
 
 
-def get_length(pop):
+def lv_length(pop, peak_kw_pp=1):
     """
     Calculate local MV, LV and connection cost for given population.
     """
 
-    if pop < 2:
+    if pop <= 0:
         return 0
 
-    # connection_cost_per_hh = 500  # USD/hh
-    # mv_line_cost = 45e3  # USD/km
-    # lv_line_cost = 15e3  # USD/km
-
     num_people_per_hh = 4
-    grid_cell_area = 0.45 * 0.45  # in km2, normally 1km2
-
-    lv_line_max_length = 1  # km
+    grid_cell_area = 0.45 * 0.45  # km2
     lv_line_capacity = 10  # kW/line
-    # mv_line_max_length = 50  # km
-    mv_line_capacity = 50  # kW/line
 
-    peak_load = pop * 1  # kW
-    no_mv_lines = peak_load / mv_line_capacity
+    peak_load = pop * peak_kw_pp  # kW
     no_lv_lines = peak_load / lv_line_capacity
 
-    lv_networks_lim_capacity = no_lv_lines / no_mv_lines
-    lv_networks_lim_length = (
-        (grid_cell_area / no_mv_lines) / (lv_line_max_length / sqrt(2))
-    ) ** 2
-    actual_lv_lines = min(
-        [
-            pop / num_people_per_hh,
-            max([lv_networks_lim_capacity, lv_networks_lim_length]),
-        ]
-    )
-
-    hh_per_lv_network = (pop / num_people_per_hh) / (actual_lv_lines * no_mv_lines)
+    hh_per_lv_network = (pop / num_people_per_hh) / no_lv_lines
     lv_unit_length = sqrt(grid_cell_area / (pop / num_people_per_hh)) * sqrt(2) / 2
     lv_lines_length_per_lv_network = 1.333 * hh_per_lv_network * lv_unit_length
-    total_lv_length = actual_lv_lines * lv_lines_length_per_lv_network
-
-    # lv_cost = total_lv_length * lv_line_cost
-    # conn_cost = (pop / num_people_per_hh) * connection_cost_per_hh
+    total_lv_length = no_lv_lines * lv_lines_length_per_lv_network
 
     return total_lv_length
 
 
-def apply(pop_elec):
+def apply_lv_length(pop_elec):
     """
 
     """
 
     pop_elec = pop_elec.astype(np.int)
-    f = np.vectorize(get_length, otypes=[np.int])
+    f = np.vectorize(lv_length, otypes=[np.float32])
     costs = f(pop_elec)
     total_cost = np.sum(costs)
     print(f"Total cost: USD {total_cost:,}")
 
-    return costs.astype(np.float)
+    return costs.astype(np.float32)
