@@ -197,6 +197,7 @@ def regularise(country, aoi, pop_in, urban_in, ntl_in, targets_in):
 
     # Drop 0 pop makes visual inspection easier
     # And so that quantile values ignore 0
+    pop = pop.astype("float32")
     pop[pop == 0] = np.nan
 
     targets = buffer_raster(targets)
