@@ -6,37 +6,52 @@ from math import sqrt
 import numpy as np
 
 
-def lv_length(pop, peak_kw_pp=1):
+def lv_length(
+    pop,
+    peak_kw_pp=2,
+    people_per_hh=4,
+    cell_area=1,
+    line_capacity=155555,
+):
     """
-    Calculate local MV, LV and connection cost for given population.
+    Calculate length of low-voltage lines in a grid cell.
+
+    Parameters
+    ----------
+    pop : int
+        Number of people.
+    peak_kw_pp : float
+        Peak kW demand per person.
+    people_per_hh : int
+        Num people per household.
+    cell_area : float
+        Size of grid cell in km2.
+    line_capacity : float
+        LV line carrying capacity in kW/line.
+
+    Returns
+    -------
+    total_lv_length : float
+        Length of LV lines in km.
     """
 
-    if pop <= 0:
+    if pop < 1:
         return 0
 
-    num_people_per_hh = 4
-    grid_cell_area = 0.45 * 0.45  # km2
-    lv_line_capacity = 10  # kW/line
+    num_lines = pop*peak_kw_pp/line_capacity
+    unit_length = sqrt(cell_area/(pop/people_per_hh))
+    total_length = num_lines*unit_length
 
-    peak_load = pop * peak_kw_pp  # kW
-    no_lv_lines = peak_load / lv_line_capacity
+    return total_length
 
-    hh_per_lv_network = (pop / num_people_per_hh) / no_lv_lines
-    lv_unit_length = sqrt(grid_cell_area / (pop / num_people_per_hh)) * sqrt(2) / 2
-    lv_lines_length_per_lv_network = 1.333 * hh_per_lv_network * lv_unit_length
-    total_lv_length = no_lv_lines * lv_lines_length_per_lv_network
-
-    return total_lv_length
-
-
-def apply_lv_length(pop_elec):
+def apply_lv_length(pop_elec, **kwargs):
     """
 
     """
 
     pop_elec = pop_elec.astype(np.int)
     f = np.vectorize(lv_length, otypes=[np.float32])
-    lengths = f(pop_elec)
+    lengths = f(pop_elec, **kwargs)
     total_length = np.sum(lengths)
     print(f"Total length: {total_length:,} km")
 

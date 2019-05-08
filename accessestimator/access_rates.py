@@ -162,7 +162,7 @@ def calc_pop_elec(pop, urban, ntl, targets, access):
                         * abs(access["total"] - access_model_total)
                     )
 
-    return pop_elec
+    return pop_elec, weights
 
 
 def regularise(country, aoi, pop_in, urban_in, ntl_in, targets_in):
@@ -221,4 +221,4 @@ def estimate(pop, urban, ntl, targets, access):
     print(f"Urban:\t{access['urban']:.2f}\t{access_model_urban:.2f}")
     print(f"Rural:\t{access['rural']:.2f}\t{access_model_rural:.2f}")
 
-    return pop_elec, access_model_total
+    return pop_elec, access_model_total, weights
