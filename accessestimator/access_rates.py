@@ -171,9 +171,13 @@ def regularise(country, aoi, pop_in, urban_in, ntl_in, targets_in):
     """
 
     # Clip all to same AOI
+    print("pop")
     pop, affine, crs = clip_raster(pop_in, aoi)
+    print("urb")
     urban, urban_aff, urban_crs = clip_raster(urban_in, aoi)
+    print("ntl")
     ntl, ntl_aff, ntl_crs = clip_raster(ntl_in, aoi)
+    print("targ")
     targets, targets_aff, targets_crs = clip_raster(targets_in, aoi)
 
     pop[pop < 0] = 0
@@ -210,15 +214,6 @@ def estimate(pop, urban, ntl, targets, access):
 
     """
 
-    pop_elec = calc_pop_elec(pop, urban, ntl, targets, access)
-
+    pop_elec, weights = calc_pop_elec(pop, urban, ntl, targets, access)
     access_model_total = np.nansum(pop_elec) / np.nansum(pop)
-    access_model_urban = np.nansum(pop_elec[urban >= 3]) / np.nansum(pop[urban >= 3])
-    access_model_rural = np.nansum(pop_elec[urban < 3]) / np.nansum(pop[urban < 3])
-
-    print("Access\tActual\tModel")
-    print(f"Total:\t{access['total']:.2f}\t{access_model_total:.2f}")
-    print(f"Urban:\t{access['urban']:.2f}\t{access_model_urban:.2f}")
-    print(f"Rural:\t{access['rural']:.2f}\t{access_model_rural:.2f}")
-
     return pop_elec, access_model_total, weights

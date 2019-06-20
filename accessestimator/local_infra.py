@@ -11,7 +11,7 @@ def lv_length(
     peak_kw_pp=2,
     people_per_hh=4,
     cell_area=1,
-    line_capacity=155555,
+    line_capacity=15,
 ):
     """
     Calculate length of low-voltage lines in a grid cell.
@@ -53,6 +53,5 @@ def apply_lv_length(pop_elec, **kwargs):
     f = np.vectorize(lv_length, otypes=[np.float32])
     lengths = f(pop_elec, **kwargs)
     total_length = np.sum(lengths)
-    print(f"Total length: {total_length:,} km")
 
     return lengths.astype(np.float32)
