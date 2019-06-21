@@ -171,13 +171,9 @@ def regularise(country, aoi, pop_in, urban_in, ntl_in, targets_in):
     """
 
     # Clip all to same AOI
-    print("pop")
     pop, affine, crs = clip_raster(pop_in, aoi)
-    print("urb")
     urban, urban_aff, urban_crs = clip_raster(urban_in, aoi)
-    print("ntl")
     ntl, ntl_aff, ntl_crs = clip_raster(ntl_in, aoi)
-    print("targ")
     targets, targets_aff, targets_crs = clip_raster(targets_in, aoi)
 
     pop[pop < 0] = 0
