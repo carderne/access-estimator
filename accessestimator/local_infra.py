@@ -41,6 +41,8 @@ def lv_length(
     num_lines = pop*peak_kw_pp/line_capacity
     unit_length = sqrt(cell_area/(pop/people_per_hh))
     total_length = num_lines*unit_length
+    # can be simplified to
+    # total_length = peak_kw_pp*sqrt(cell_area*people_per_hh*pop)/cap
 
     return total_length
 

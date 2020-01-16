@@ -158,7 +158,8 @@ def calc_pop_elec(pop, urban, ntl, targets, access):
                     more[k][l] += (
                         more[k][l]
                         * direc
-                        * (20 / runs)
+                        # * (20 / runs)
+                        * 10
                         * abs(access["total"] - access_model_total)
                     )
 
@@ -212,4 +213,14 @@ def estimate(pop, urban, ntl, targets, access):
 
     pop_elec, weights = calc_pop_elec(pop, urban, ntl, targets, access)
     access_model_total = np.nansum(pop_elec) / np.nansum(pop)
+
+    access_model_total = np.nansum(pop_elec) / np.nansum(pop)
+    access_model_urban = np.nansum(pop_elec[urban >= 3]) / np.nansum(pop[urban >= 3])
+    access_model_rural = np.nansum(pop_elec[urban < 3]) / np.nansum(pop[urban < 3])
+
+    print("Access\tActual\tModel")
+    print(f"Total:\t{access['total']:.2f}\t{access_model_total:.2f}")
+    print(f"Urban:\t{access['urban']:.2f}\t{access_model_urban:.2f}")
+    print(f"Rural:\t{access['rural']:.2f}\t{access_model_rural:.2f}")
+
     return pop_elec, access_model_total, weights
